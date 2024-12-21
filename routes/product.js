@@ -16,6 +16,32 @@ router.post("/create", async(req, res) => {
 }
 });
 
+router.get("/", async(req, res) => {
+  const { page = 1, limit = 10 } = req.query; 
+  try {
+    // Convert to numbers
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    // Fetch data with skip and limit
+    const data = await productModel.find()
+      .skip((pageNum - 1) * limitNum) // Skip previous pages
+      .limit(limitNum); // Limit the number of documents
+    const total = await productModel.countDocuments(); // Total number of documents
+    res.json({
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum),
+      data,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
 router.post("/update/:id", async(req, res) => {
   let { id } = req.params;  
   let products = await productModel.findOne({ _id: id }) 
