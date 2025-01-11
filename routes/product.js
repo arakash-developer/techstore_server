@@ -16,17 +16,28 @@ router.post("/create", async(req, res) => {
 }
 });
 
-router.get("/", async(req, res) => {
-  const { page = 1, limit = 10 } = req.query; 
+router.get("/", async (req, res) => {
+  const { page = 1, limit = 10, category } = req.query; // Extract category from query parameters
   try {
-    // Convert to numbers
+    // Convert page and limit to numbers
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
-    // Fetch data with skip and limit
-    const data = await productModel.find()
+
+    // Initialize the filter object
+    let filter = {};
+    if (category) {
+      filter.category = { $regex: category, $options: "i" }; // Case-insensitive partial match
+    }
+
+    // Fetch filtered data with pagination
+    const data = await productModel.find(filter)
       .skip((pageNum - 1) * limitNum) // Skip previous pages
       .limit(limitNum); // Limit the number of documents
-    const total = await productModel.countDocuments(); // Total number of documents
+
+    // Get the total count of documents matching the filter
+    const total = await productModel.countDocuments(filter);
+
+    // Send the response
     res.json({
       total,
       page: pageNum,
@@ -38,6 +49,7 @@ router.get("/", async(req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Get a single product by ID
 router.get("/:id", async (req, res) => {
