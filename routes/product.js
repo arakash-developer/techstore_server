@@ -17,7 +17,7 @@ router.post("/create", async(req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  const { page = 1, limit = 10, category } = req.query; // Extract category from query parameters
+  const { page = 1, limit = 10, category, brand } = req.query; // Extract category and brand from query parameters
   try {
     // Convert page and limit to numbers
     const pageNum = parseInt(page);
@@ -26,7 +26,10 @@ router.get("/", async (req, res) => {
     // Initialize the filter object
     let filter = {};
     if (category) {
-      filter.category = { $regex: category, $options: "i" }; // Case-insensitive partial match
+      filter.category = { $regex: category, $options: "i" }; // Case-insensitive partial match for category
+    }
+    if (brand) {
+      filter.brand = { $regex: brand, $options: "i" }; // Case-insensitive partial match for brand
     }
 
     // Fetch filtered data with pagination
@@ -49,6 +52,7 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 // Get a single product by ID
