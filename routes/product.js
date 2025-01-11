@@ -25,10 +25,10 @@ router.get("/", async (req, res) => {
 
     // Initialize the filter object
     let filter = {};
-    if (category) {
+    if (category && category.toLowerCase() !== "all") {
       filter.category = { $regex: category, $options: "i" }; // Case-insensitive partial match for category
     }
-    if (brand) {
+    if (brand && brand.toLowerCase() !== "all") {
       filter.brand = { $regex: brand, $options: "i" }; // Case-insensitive partial match for brand
     }
 
